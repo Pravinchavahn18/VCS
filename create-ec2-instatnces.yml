@@ -1,17 +1,29 @@
-EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-        ImageId: !FindInMap [ AWSRegionArch2AMI, !Ref 'AWS::Region' , !FindInMap [ AWSInstanceType2Arch, !Ref InstanceType, Arch ] ]
-        KeyName: !Ref KeyName
-        InstanceType: !Ref InstanceType
-        SecurityGroups:
-        - !Ref Ec2SecurityGroup
-        BlockDeviceMappings:
-        -
-          DeviceName: /dev/sda1
-          Ebs:
-            VolumeSize: 50
-        -
-          DeviceName: /dev/sdm
-          Ebs:
-            VolumeSize: 1
+---
+- hosts :localhost
+  gather_facts: False
+   vars:
+   instance_name: "example-instance"
+   insatance_type: "t2.micro"
+   ami_id: ami-067d1e60475437da2
+   region: us-east-1
+   security_group: sg-03c3a34d07ec71f79
+   subnet_id: subnet-0e25dbb5dc89774b7
+   keypaire: vpcs
+ tasks:
+   - name: create ec2 instance
+     ec2:
+       instance_type: "{{insatnce_type}}"
+       image: "{{ami_id}}"
+       wait: yes
+       region: "{{region}}"
+       key_name: "{{keypaire}}"
+       group_id: "{{security group}}"
+       vpc_subnet_id: "{{   }}"
+       assign_public_ip: yes
+       instance_tags:
+         Name: :{{instancename}}
+      register: ec2
+   - name: Print instance info
+     debug:
+       var: ec2.instance_ids[0]
+
